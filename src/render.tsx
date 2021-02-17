@@ -1,37 +1,60 @@
-import { createRef, MutableRef } from "./cerber"
+import { Api, createRef, MutableRef } from "./cerber"
 
-type Props = {
-    children: any
-    apiName: string
+export type TestApi = {
+    changeFoo: (value: string) => void
+    remove: () => void
 }
 
-const Test = ({ children, apiName }: Props) => {
-    const testRef = createRef<HTMLDivElement>(null)
-    const changeDuplo = (value: string) => {
-        testRef.current.innerText = value
+export type TestProps = {
+    children: any
+    api: Api<TestApi>
+}
+
+const Test = ({ children, api }: TestProps) => {
+    const fooRef = createRef<HTMLDivElement>(null)
+    const baseRef = createRef<HTMLDivElement>(null)
+    const changeFoo = (value: string) => {
+        console.log('baseRef.current', baseRef.current)
+        console.log('fooRef.current.parent', fooRef.current.parentElement)
+        fooRef.current.innerText = value
+    }
+
+    const remove = () => {
+        baseRef.current.remove()
+        baseRef.current = null
+        fooRef.current = null
     }
     
-    return [apiName, {}, (
-        <div className="Test">
-            <div ref={testRef} />
+    api.setApi({ changeFoo, remove })
+
+    return (
+        <div className="Test" ref={baseRef}>
+            <div className="foo" ref={fooRef} />
             {children}
         </div>
-    )]
+    )
 }
 
 const range = [1, 2, 3, 4, 5]
 
+export type AppApi = {
+    test?: Api<TestApi>
+}
+
 export type AppProps = {
+    api: Api<AppApi>
     ref: MutableRef<HTMLDivElement>
     inputRef: MutableRef<HTMLInputElement>
     nameRef: MutableRef<HTMLSpanElement>
 }
 
-function App({ ref, inputRef, nameRef }: AppProps) {
+function App({ ref, inputRef, nameRef, api }: AppProps) {
+    const testApi = new Api<TestApi>()
+    api.setApi({ test: testApi })
     return (
         <div className="base" ref={ref}>
             <p>Hello World</p>
-            <Test apiName="test">
+            <Test api={testApi}>
                 <div>
                     <span>My name is</span>
                     {' '}
