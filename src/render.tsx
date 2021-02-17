@@ -1,4 +1,4 @@
-import { Api, createRef, MutableRef } from "./cerber"
+import { Api, createApi, createRef, MutableRef } from "./cerber"
 
 export type TestApi = {
     changeFoo: (value: string) => void
@@ -9,6 +9,10 @@ export type TestProps = {
     children: any
     api: Api<TestApi>
 }
+
+const weakset = new WeakSet<any>()
+// @ts-ignore
+window.weakset = weakset
 
 const Test = ({ children, api }: TestProps) => {
     const fooRef = createRef<HTMLDivElement>(null)
@@ -21,16 +25,18 @@ const Test = ({ children, api }: TestProps) => {
 
     const remove = () => {
         baseRef.current.remove()
-        baseRef.current = null
-        fooRef.current = null
     }
     
     api.setApi({ changeFoo, remove })
+
+    weakset.add(fooRef)
+    weakset.add(baseRef)
 
     return (
         <div className="Test" ref={baseRef}>
             <div className="foo" ref={fooRef} />
             {children}
+            {[...Array(100)].map((_, x) => <div>x</div>)}
         </div>
     )
 }
@@ -39,20 +45,24 @@ const range = [1, 2, 3, 4, 5]
 
 export type AppApi = {
     test?: Api<TestApi>
+    remove: () => void
 }
 
 export type AppProps = {
     api: Api<AppApi>
-    ref: MutableRef<HTMLDivElement>
     inputRef: MutableRef<HTMLInputElement>
     nameRef: MutableRef<HTMLSpanElement>
 }
 
-function App({ ref, inputRef, nameRef, api }: AppProps) {
-    const testApi = new Api<TestApi>()
-    api.setApi({ test: testApi })
+function App({ inputRef, nameRef, api }: AppProps) {
+    const testApi = createApi<TestApi>()
+    const baseRef = createRef<HTMLDivElement>(null)
+    const remove = () => {
+        baseRef.current.remove()
+    }
+    api.setApi({ test: testApi, remove })
     return (
-        <div className="base" ref={ref}>
+        <div className="base" ref={baseRef}>
             <p>Hello World</p>
             <Test api={testApi}>
                 <div>

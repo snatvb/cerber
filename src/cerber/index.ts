@@ -37,6 +37,7 @@ export class Api<T> {
 }
 
 export const createRef = <T>(initData: T | {}): MutableRef<T> => ({ current: initData as T })
+export const createApi = <T>() => new Api<T>()
 
 const appendChild = (child: any | any[], root: Element) => {
     if (Array.isArray(child)) {
