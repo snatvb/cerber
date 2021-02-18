@@ -70,9 +70,9 @@ const appendChilds = (childs: any[], element: HTMLElement) => {
 const Cerber = {
     createElement<T>(component: string | Component<T>, props: any, ...childs: any[]) {
         const element = typeof component === 'function' ? component({...props, children: childs}) : document.createElement(component)
-        appendChilds(childs, element)
-
+        
         if (typeof component === 'string') {
+            appendChilds(childs, element)
             addAttributes(element, props)
 
             if (typeof props.ref === 'object' && props.ref !== null) {

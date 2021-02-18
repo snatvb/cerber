@@ -5,6 +5,7 @@ declare namespace JSX {
         img: any;
         input: any;
         span: any;
+        button: any;
     }
 
     interface ElementChildrenAttribute {

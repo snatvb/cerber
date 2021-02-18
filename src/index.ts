@@ -1,7 +1,8 @@
 import { createApi, createRef } from './cerber'
 import App, { AppApi } from './render'
+import Todos from './Todos'
 
-const render = () => {
+const renderApp = () => {
     const api = createApi<AppApi>()
     const inputRef = createRef<HTMLInputElement>(null)
     const nameRef = createRef<HTMLSpanElement>(null)
@@ -25,4 +26,11 @@ const render = () => {
         window.setTimeout(removeTest, 100)
     })
 }
-render()
+
+const renderTodos = () => {
+    document.getElementById('root').append(Todos({}))
+}
+
+renderTodos()
+
+// renderApp()
